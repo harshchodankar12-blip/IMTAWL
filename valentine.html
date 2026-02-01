@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heart Match 💗</title>
+<style>
+    body {
+        margin: 0;
+        background: linear-gradient(135deg, #ffd6e8, #e0c3fc);
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .game {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        width: 90%;
+        max-width: 380px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+        margin-top: 0;
+        color: #d6336c;
+    }
+
+    .text {
+        color: #444;
+        margin-bottom: 15px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    .card {
+        background: #f1f3f5;
+        border-radius: 12px;
+        height: 70px;
+        font-size: 2em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.2s, background 0.2s;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        background: #ffe3ed;
+    }
+
+    .card.revealed {
+        background: #ffd6e8;
+    }
+
+    .choices button {
+        display: block;
+        width: 100%;
+        margin: 8px 0;
+        background: #d6336c;
+        border: none;
+        color: white;
+        padding: 10px;
+        border-radius: 18px;
+        font-size: 1em;
+        cursor: pointer;
+    }
+
+    .choices button:hover {
+        background: #c2255c;
+    }
+</style>
+</head>
+<body>
+
+<div class="game">
+    <h1>💗 Heart Match 💗</h1>
+    <div class="text" id="text">
+        Find all the matching hearts to unlock a message.
+    </div>
+
+    <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const symbols = ["💗","💗","💖","💖","💕","💕","💞","💞"];
+let shuffled = [];
+let first = null;
+let lock = false;
+let matches = 0;
+
+const grid = document.getElementById("grid");
+const text = document.getElementById("text");
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function setup() {
+    shuffled = [...symbols];
+    shuffle(shuffled);
+    grid.innerHTML = "";
+    matches = 0;
+    first = null;
+    lock = false;
+
+    text.innerText = "Find all the matching hearts to unlock a message.";
+
+    shuffled.forEach(symbol => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerText = "❔";
+        card.onclick = () => flip(card, symbol);
+        grid.appendChild(card);
+    });
+}
+
+function flip(card, symbol) {
+    if (lock || card.classList.contains("revealed")) return;
+
+    card.innerText = symbol;
+    card.classList.add("revealed");
+
+    if (!first) {
+        first = { card, symbol };
+    } else {
+        if (first.symbol === symbol) {
+            matches++;
+            first = null;
+
+            if (matches === symbols.length / 2) {
+                win();
+            }
+        } else {
+            lock = true;
+            setTimeout(() => {
+                card.innerText = "❔";
+                first.card.innerText = "❔";
+                card.classList.remove("revealed");
+                first.card.classList.remove("revealed");
+                first = null;
+                lock = false;
+            }, 700);
+        }
+    }
+}
+
+function win() {
+    grid.innerHTML = "";
+    text.innerHTML = `
+        💕 You did it! 💕<br><br>
+        Even from far away,<br>
+        my favorite match is still you.<br><br>
+        <b>Will you be my Valentine? 💖</b>
+        <div class="choices">
+            <button onclick="answer('yes')">Yes 💗</button>
+            <button onclick="answer('absolutely')">Absolutely 💞</button>
+            <button onclick="answer('obviously')">Obviously 🙄💘</button>
+        </div>
+    `;
+}
+
+function answer(type) {
+    let response = "";
+
+    if (type === "yes") {
+        response = "You just made my entire day hippo, i love you so much";
+    } else if (type === "absolutely") {
+        response = "I was hoping you’d say that hippo 🥰";
+    } else {
+        response = "i love you so much hippo";
+    }
+
+    text.innerHTML = `
+        WE ROLL<br><br>
+        ${response}<br><br>
+        i know we cant meet each other rn, but i want you to know that i think about you all the time and i love you a lot.<br>
+        thank you for being the best girlfriend ever
+    `;
+}
+
+setup();
+</script>
+
+</body>
+</html>
